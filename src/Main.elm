@@ -16,21 +16,35 @@ type Color
 
 
 type alias Player =
-    { id : Int
-    , name : String
+    { name : String
     , color : Color
     , moveTimerSeconds : Int
+    , gamesWon : Int
     }
 
 
 type alias Board =
-    { grid : Array (Array (Maybe { playerId : Int }))
+    { grid : Array (Array (Maybe { playerIndex : Int }))
     }
+
+
+type PlaceResult
+    = -- TODO: think of a better name
+      ValidDrop Board
+    | ColumnAlreadyFull
+    | WinningMove Board
+    | BoardIsFull
+
+
+
+-- place : { column : Int } -> Board -> PlaceResult
+-- isFilled : { column : Int } -> Board -> Bool
+-- isWinningMove : { column : Int } -> Board -> Bool
 
 
 type Screen
     = StartScreen
-    | GameScreen { board : Board, activePlayerTurn : Player }
+    | GameScreen { board : Board, activePlayerIndex : Int }
     | RoundEndScreen
         { winner : Maybe Player -- might be a tie
         , scorePlayers : List Int -- should we handle more than a 2 players?
@@ -48,15 +62,15 @@ init : ( Model, Cmd Msg )
 init =
     let
         players =
-            [ { id = 0
-              , name = "Player 1"
+            [ { name = "Player 1"
               , color = Blue
               , moveTimerSeconds = 0
+              , gamesWon = 0
               }
-            , { id = 1
-              , name = "Player 2"
+            , { name = "Player 2"
               , color = Red
               , moveTimerSeconds = 0
+              , gamesWon = 0
               }
             ]
     in
@@ -73,7 +87,12 @@ init =
 
 
 type Msg
-    = NoOp
+    = PlayerNamesAndColorsConfigured -- StartScreen
+    | NewTurn -- GameScreen
+    | PlayerMadeAMove -- GameScreen
+    | GameFinished -- GameScreen
+    | RestartGame -- RoundEndScreen
+    | ReturnToStartScreen --RoundEndScreen
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
