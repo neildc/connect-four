@@ -1,27 +1,68 @@
-Connect Four
-TravelRepublic front-end developer test
+Connect Four -  TravelRepublic front-end developer test
+==========================================================
 
-What is Connect Four?
-Connect Four is a two-player connection game in which the players first choose a color and then take turns dropping one colored disc from the top into a seven-column, six-row vertically suspended grid. The pieces fall straight down, occupying the lowest available space within the column. The objective of the game is to be the first to form a horizontal, vertical, or diagonal line of four of one's own discs.
+* What is Connect Four?
+Connect Four is a
+** two-player connection game in which the
+*** players first choose a color
+*** and then take turns
+**** dropping one colored disc from the top into a
+*****  seven-column, six-row vertically suspended grid.
+*****  The pieces fall straight down, occupying the lowest available space within the column.
+*** The objective of the game is to be the first to form a
+**** diagonal line of four of one's own discs.
+***** horizontal
+***** vertical
+***** diagonal
 
-More info can be found at https://en.wikipedia.org/wiki/Connect_Four.
+ More info can be found at https://en.wikipedia.org/wiki/Connect_Four.
 
-What do I need to do?
-Your task is to implement Connect Four for two human players to play in a web browser. 
-Players take turns, and in each turn one player has the right to drop a token into any column which is not filled. The game is finished as soon as one of the players satisfies the victory conditions. At that point the game can be restarted, or the players can return to the starting screen.
+* What do I need to do?
+** Players take turns
+*** in each turn
+**** TODO one player has the right to drop a token into any column which is not filled
+*** TODO The game is finished as soon as one of the players satisfies the victory conditions.
+**** At that point the game
+***** TODO can be restarted,
+***** TODO the players can return to the starting screen.
 
-Some additional details regarding the task
-On the starting screen the players should be able to enter their names and select the colour of their tokens or continue with the default names and colours (e.g. Player 1 with blue colour, and Player 2 with red colour, or per your own choice).
-On each player turn, a timer should keep track of how long it took that player to make all his moves. At the beginning of each turn, timer for the currently active player should start counting time and stop only when the player places a token into a column. Who is the active player should be clearly indicated in the UI.
-The number of wins for each player should also be tracked. If the game is restarted, it should be reflected in the UI by incrementing the number of wins for the winning player. If the players decide to return to the starting screen after the last round of the game, these values should be reset.
-Round-end screen should clearly indicate the winner (if there is a winner), current score between the two players, and provide options for restarting the game or going to the start screen. If the game is restarted, the player that had won the previous round should be the second to play, while the player that lost the previous round should be the first to play.
+* Some additional details regarding the task
+** On the starting screen
+*** [EITHER] the players should be able to
+**** TODO enter their names and select the colour of their tokens
+**** TODO continue with the default names and colours (e.g. Player 1 with blue colour, and Player 2 with red colour, or per your own choice).
 
-Tools, frameworks and solution
-You can use whatever frameworks or libraries you like, but be prepared to justify your use of them.
-Ideally, we would like to see a solution based on one of the industry standard frameworks, use of CSS preprocessor and a module bundler (e.g. Webpack). It is also recommended that Git VCS is used, and that the solution contains a „readme“ file with all the important information, for example how to install/build/run/test your solution.
+** On each player turn,
+*** TODO a timer should keep track of how long it took that player to make all his moves.
+*** At the beginning of each turn,
+**** timer for the currently active player
+***** TODO should start counting time and
+***** TODO stop only when the player places a token into a column.
+**** TODO Who is the active player should be clearly indicated in the UI.
 
-How much time do I have?
-You should aim to get this test back to us within four days of receiving this task, but there is no precise time limit.
+** The number of wins for each player should also be tracked.
+*** If the game is restarted,
+**** TODO it should be reflected in the UI by incrementing the number of wins for the winning player.
+*** If the players decide to return to the starting screen after the last round of the game
+**** TODO these values should be reset.
 
-How to submit the solution?
-If you have a GitHub account, the easiest way would be to upload it there, and then share a link with us. If that's not an option then put all the relevant files into a single archive (.rar or .zip) and send it back as an attachement.
+
+** Round-end screen should
+*** TODO clearly indicate the winner (if there is a winner),
+*** TODO current score between the two players,
+*** and provide options for
+**** TODO restarting the game
+**** TODO or going to the start screen.
+*** If the game is restarted,
+**** TODO the player that had won the previous round should be the second to play, while the player that lost the previous round should be the first to play.
+
+* Tools, frameworks and solution
+  You can use whatever frameworks or libraries you like, but be prepared to justify your use of them.
+  Ideally, we would like to see a solution based on one of the industry standard frameworks, use of CSS preprocessor and a module bundler (e.g. Webpack). It is also recommended that Git VCS is used,
+** TODO and that the solution contains a „readme“ file with all the important information, for example how to install/build/run/test your solution.
+
+* How much time do I have?
+  You should aim to get this test back to us within four days of receiving this task, but there is no precise time limit.
+
+* How to submit the solution?
+  If you have a GitHub account, the easiest way would be to upload it there, and then share a link with us. If that's not an option then put all the relevant files into a single archive (.rar or .zip) and send it back as an attachement.
