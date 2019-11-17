@@ -67,6 +67,7 @@ cssGridBox =
         , ( "padding", "40px" )
         , ( "border", "solid 5px black" )
         , ( "border-radius", "25px" )
+        , ( "background-color", "white" )
         ]
 
 
