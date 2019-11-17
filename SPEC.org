@@ -75,7 +75,8 @@ Connect Four is a
 * Tools, frameworks and solution
   You can use whatever frameworks or libraries you like, but be prepared to justify your use of them.
   Ideally, we would like to see a solution based on one of the industry standard frameworks, use of CSS preprocessor and a module bundler (e.g. Webpack). It is also recommended that Git VCS is used,
-** TODO and that the solution contains a „readme“ file with all the important information, for example how to install/build/run/test your solution.
+** DONE and that the solution contains a „readme“ file with all the important information, for example how to install/build/run/test your solution.
+   CLOSED: [2019-11-18 Mon 02:14]
 
 * How much time do I have?
   You should aim to get this test back to us within four days of receiving this task, but there is no precise time limit.
