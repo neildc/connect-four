@@ -43,6 +43,16 @@ getActivePlayer model =
     Array.get model.activePlayerIndex model.players
 
 
+setActivePlayerToNext : Model -> Model
+setActivePlayerToNext model =
+    { model
+        | activePlayerIndex =
+            Basics.modBy
+                (Array.length model.players)
+                (model.activePlayerIndex + 1)
+    }
+
+
 init : ( Model, Cmd Msg )
 init =
     let
@@ -69,11 +79,7 @@ type Msg
     = PlayerEdited { playerIndex : Int } Player
     | RestartGame
     | PlayerMadeAMove { activePlayer : Player } { column : Int }
-
-
-
--- | GameFinished { winner : Maybe Player }
--- | ReturnToStartScreen
+    | ReturnToStartScreen
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -89,6 +95,7 @@ update msg model =
                 | screen = GameScreen
                 , board = Board.init { columns = const_GAME_COLUMNS, rows = const_GAME_ROWS }
               }
+                |> setActivePlayerToNext
             , Cmd.none
             )
 
@@ -100,22 +107,42 @@ update msg model =
                             Debug.todo "Alert?"
 
                         Result.Ok newBoard ->
-                            { model
-                                | board = newBoard
-                                , activePlayerIndex =
-                                    Basics.modBy
-                                        (Array.length model.players)
-                                        (model.activePlayerIndex + 1)
-                            }
+                            { model | board = newBoard }
+                                |> setActivePlayerToNext
 
                 Board.ColumnAlreadyFull ->
                     model |> Debug.log "TODO handle column full alert or something"
 
                 Board.WinningMove ->
-                    { model | screen = RoundEndScreen { wasTie = False } }
+                    let
+                        maybeWinner =
+                            getActivePlayer model
+                    in
+                    case maybeWinner of
+                        Just winner ->
+                            { model
+                                | screen = RoundEndScreen { wasTie = False }
+                                , players =
+                                    Array.set
+                                        model.activePlayerIndex
+                                        { winner | gamesWon = winner.gamesWon + 1 }
+                                        model.players
+                            }
+
+                        Nothing ->
+                            Debug.log "This should never happen..." <|
+                                { model | screen = RoundEndScreen { wasTie = True } }
 
                 Board.BoardIsFull ->
                     { model | screen = RoundEndScreen { wasTie = True } }
+            , Cmd.none
+            )
+
+        ReturnToStartScreen ->
+            ( { model
+                | screen = StartScreen
+                , players = Array.map (\p -> { p | gamesWon = 0 }) model.players
+              }
             , Cmd.none
             )
 
@@ -134,8 +161,8 @@ view model =
             GameScreen ->
                 viewGameScreen model
 
-            RoundEndScreen _ ->
-                Html.text "TODO roundEndScreen"
+            RoundEndScreen wasTie ->
+                viewRoundEndScreen wasTie model
         ]
 
 
@@ -185,8 +212,7 @@ viewStartScreen players =
             in
             Html.div [] <|
                 List.concat
-                    [ [ Html.text "Player name: "
-                      , Html.input [ HA.value player.name, HE.onInput (\s -> PlayerEdited { playerIndex = index } { player | name = s }) ] []
+                    [ [ Html.input [ HA.value player.name, HE.onInput (\s -> PlayerEdited { playerIndex = index } { player | name = s }) ] []
                       ]
                     , List.map viewColorButton Color.all
                     ]
@@ -197,6 +223,49 @@ viewStartScreen players =
             , Array.toList <| Array.indexedMap viewPlayerEdit players
             , [ Html.button [ HE.onClick RestartGame ] [ Html.text "Start Game" ] ]
             ]
+
+
+viewRoundEndScreen : { wasTie : Bool } -> Model -> Html Msg
+viewRoundEndScreen { wasTie } model =
+    let
+        maybeWinner =
+            getActivePlayer model
+
+        viewScores player =
+            Html.div []
+                [ Html.text player.name
+                , Html.br [] []
+                , Html.text <| String.fromInt player.gamesWon
+                ]
+
+        cssGridColumns =
+            List.map (\( k, v ) -> HA.style k v)
+                [ ( "display", "grid" )
+                , ( "grid-gap", "50px" )
+                , ( "grid-template-columns"
+                  , String.join ""
+                        [ "repeat("
+                        , String.fromInt (Array.length model.players)
+                        , ", 100px)"
+                        ]
+                  )
+                , ( "align-content", "center" )
+                , ( "justify-content", "center" )
+                ]
+    in
+    Html.div [ HA.style "display" "grid", HA.style "grid-gap" "30px" ] <|
+        [ Html.text <|
+            if wasTie then
+                "Draw: No winner"
+
+            else
+                (maybeWinner |> Maybe.map .name |> Maybe.withDefault "") ++ " won"
+        , Html.div cssGridColumns <|
+            Array.toList <|
+                Array.map viewScores model.players
+        , Html.button [ HE.onClick RestartGame ] [ Html.text "New Game" ]
+        , Html.button [ HE.onClick ReturnToStartScreen ] [ Html.text "Back To Start" ]
+        ]
 
 
 

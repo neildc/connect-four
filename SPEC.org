@@ -25,8 +25,10 @@ Connect Four is a
 *** DONE The game is finished as soon as one of the players satisfies the victory conditions.
     CLOSED: [2019-11-17 Sun 22:53]
 **** At that point the game
-***** TODO can be restarted,
-***** TODO the players can return to the starting screen.
+***** DONE can be restarted,
+      CLOSED: [2019-11-18 Mon 00:22]
+***** DONE the players can return to the starting screen.
+      CLOSED: [2019-11-18 Mon 00:22]
 
 * Some additional details regarding the task
 ** On the starting screen
@@ -47,17 +49,23 @@ Connect Four is a
 
 ** The number of wins for each player should also be tracked.
 *** If the game is restarted,
-**** TODO it should be reflected in the UI by incrementing the number of wins for the winning player.
+**** DONE it should be reflected in the UI by incrementing the number of wins for the winning player.
+     CLOSED: [2019-11-18 Mon 00:22]
 *** If the players decide to return to the starting screen after the last round of the game
-**** TODO these values should be reset.
+**** DONE these values should be reset.
+     CLOSED: [2019-11-18 Mon 00:22]
 
 
 ** Round-end screen should
-*** TODO clearly indicate the winner (if there is a winner),
-*** TODO current score between the two players,
+*** DONE clearly indicate the winner (if there is a winner),
+    CLOSED: [2019-11-18 Mon 00:22]
+*** DONE current score between the two players,
+    CLOSED: [2019-11-18 Mon 00:22]
 *** and provide options for
-**** TODO restarting the game
-**** TODO or going to the start screen.
+**** DONE restarting the game
+     CLOSED: [2019-11-18 Mon 00:22]
+**** DONE or going to the start screen.
+     CLOSED: [2019-11-18 Mon 00:22]
 *** If the game is restarted,
 **** TODO the player that had won the previous round should be the second to play, while the player that lost the previous round should be the first to play.
 
