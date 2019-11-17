@@ -18,21 +18,20 @@ import Types.Player as Player exposing (Player)
 
 const_GAME_COLUMNS : Int
 const_GAME_COLUMNS =
-    7
+    20
 
 
 const_GAME_ROWS : Int
 const_GAME_ROWS =
-    6
+    10
 
 
 defaultPlayers : List ( String, Color )
 defaultPlayers =
     [ ( "Player 1", Color.Blue )
     , ( "Player 2", Color.Red )
-
-    -- , ( "Player 3", Color.Yellow )
-    -- , ( "Player 4", Color.Green )
+    , ( "Player 3", Color.Orange )
+    , ( "Player 4", Color.Green )
     ]
 
 

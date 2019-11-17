@@ -202,10 +202,10 @@ view : ({ column : Int } -> msg) -> Board -> Html msg
 view dropItemIntoColumnMsg ((Board board) as b) =
     let
         boxWidthVw =
-            "7vw"
+            "3.5vw"
 
         marginVw =
-            "1vw"
+            "0.5vw"
 
         gridCss =
             List.map (\( k, v ) -> HA.style k v)
