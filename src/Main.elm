@@ -93,7 +93,12 @@ init =
       , players =
             Array.fromList <|
                 List.map (\( name, color ) -> Player.init name color) defaultPlayers
-      , activePlayerIndex = 0
+
+      -- The first run of the game will trigger the `RestartGame`
+      -- update which bumps the activePlayerIndex to the next one
+      --
+      -- -1 here to make sure we start at 0
+      , activePlayerIndex = -1
       }
     , Cmd.none
     )
