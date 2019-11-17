@@ -204,36 +204,36 @@ isWinningMove colorBeingPlaced ({ column } as c) ((Board board) as b) =
 view : ({ column : Int } -> msg) -> Board -> Html msg
 view dropItemIntoColumnMsg ((Board board) as b) =
     let
-        boxWidthPx =
-            100
+        boxWidthVw =
+            "7vw"
 
-        marginPx =
-            20
+        marginVw =
+            "1vw"
 
         gridCss =
             List.map (\( k, v ) -> HA.style k v)
                 [ ( "display", "grid" )
-                , ( "grid-gap", String.fromInt marginPx ++ "px" )
+                , ( "grid-gap", marginVw )
                 , ( "grid-template-columns"
                   , String.join ""
                         [ "repeat("
                         , String.fromInt (getNumColumns b)
                         , ", "
-                        , String.fromInt boxWidthPx
-                        , "px)"
+                        , boxWidthVw
+                        , ")"
                         ]
                   )
                 , ( "align-content", "center" )
                 , ( "justify-content", "center" )
-                , ( "padding-top", String.fromInt marginPx ++ "px" )
-                , ( "padding-bottom", String.fromInt marginPx ++ "px" )
+                , ( "padding-top", marginVw )
+                , ( "padding-bottom", marginVw )
                 , ( "background-color", Color.toHexString Color.Black )
                 ]
 
         boxCss =
             List.map (\( k, v ) -> HA.style k v)
-                [ ( "height", "100px" )
-                , ( "margin-top", "20px" )
+                [ ( "height", boxWidthVw )
+                , ( "margin-top", marginVw )
                 , ( "background-color", "white" )
                 , ( "border-radius", "100%" )
                 ]
