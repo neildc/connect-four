@@ -239,7 +239,7 @@ viewGameScreen model =
                 ]
                 [ Html.text <|
                     if isActivePlayer then
-                        String.concat [ "--->  ", playerText player, "   <----" ]
+                        String.concat [ "[   ", playerText player, "   ]" ]
 
                     else
                         playerText player
