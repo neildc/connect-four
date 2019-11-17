@@ -139,9 +139,6 @@ update msg model =
                             { model | board = newBoard }
                                 |> setActivePlayerToNext
 
-                Board.ColumnAlreadyFull ->
-                    model |> Debug.log "TODO handle column full alert or something"
-
                 Board.WinningMove ->
                     let
                         maybeWinner =

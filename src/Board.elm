@@ -24,7 +24,7 @@ type Board
 type PlaceResult
     = -- TODO: think of a better name
       Placed (Result String Board)
-    | ColumnAlreadyFull -- Maybe just prevent this?
+      -- | ColumnAlreadyFull -- On click is removed when full
     | WinningMove
     | BoardIsFull
 
@@ -66,9 +66,6 @@ place colorBeingPlaced column ((Board board) as oldBoard) =
 
             else if isBoardFull updatedBoard then
                 BoardIsFull
-
-            else if nextAvailableSlot column oldBoard == Nothing then
-                ColumnAlreadyFull
 
             else
                 Placed <| Result.Ok updatedBoard
