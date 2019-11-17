@@ -130,7 +130,7 @@ update msg model =
 
         PlayerMadeAMove { activePlayer } column ->
             ( case Board.place activePlayer.color column model.board of
-                Board.Place result ->
+                Board.Placed result ->
                     case result of
                         Result.Err errStr ->
                             Debug.todo "Alert?"
@@ -229,8 +229,8 @@ viewGameScreen model =
                 [ HA.style "color" "white"
                 , HA.style "text-shadow" "black 0px 0px 10px"
                 , HA.style "background-color" <| Color.toHexString player.color
-                , HA.style "padding-top" "20px"
-                , HA.style "height" "40px"
+                , HA.style "padding-top" "2vw"
+                , HA.style "height" "4vw"
                 , if isActivePlayer then
                     HA.style "border" "black solid 2px"
 

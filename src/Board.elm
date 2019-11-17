@@ -1,10 +1,7 @@
 module Board exposing
     ( Board
     , PlaceResult(..)
-    , getNumColumns
-    , getNumRows
     , init
-    , nextAvailableSlot
     , place
     , view
     )
@@ -26,7 +23,7 @@ type Board
 
 type PlaceResult
     = -- TODO: think of a better name
-      Place (Result String Board)
+      Placed (Result String Board)
     | ColumnAlreadyFull -- Maybe just prevent this?
     | WinningMove
     | BoardIsFull
@@ -38,31 +35,6 @@ init { columns, rows } =
         { columns = Array.repeat columns Array.empty
         , maxItemsPerCol = rows
         }
-
-
-getNumRows : Board -> Int
-getNumRows (Board board) =
-    board.maxItemsPerCol
-
-
-getNumColumns : Board -> Int
-getNumColumns (Board board) =
-    board.columns |> Array.length
-
-
-nextAvailableSlot : { column : Int } -> Board -> Maybe Int
-nextAvailableSlot { column } (Board board) =
-    board.columns
-        |> Array.get column
-        |> Maybe.map Array.length
-        |> Maybe.andThen
-            (\length ->
-                if length >= board.maxItemsPerCol then
-                    Nothing
-
-                else
-                    Just length
-            )
 
 
 place : Color -> { column : Int } -> Board -> PlaceResult
@@ -99,10 +71,42 @@ place colorBeingPlaced column ((Board board) as oldBoard) =
                 ColumnAlreadyFull
 
             else
-                Place <| Result.Ok updatedBoard
+                Placed <| Result.Ok updatedBoard
 
         Result.Err errStr ->
-            Place <| Result.Err errStr
+            Placed <| Result.Err errStr
+
+
+getNumRows : Board -> Int
+getNumRows (Board board) =
+    board.maxItemsPerCol
+
+
+getNumColumns : Board -> Int
+getNumColumns (Board board) =
+    board.columns |> Array.length
+
+
+nextAvailableSlot : { column : Int } -> Board -> Maybe Int
+nextAvailableSlot { column } (Board board) =
+    board.columns
+        |> Array.get column
+        |> Maybe.map Array.length
+        |> Maybe.andThen
+            (\length ->
+                if length >= board.maxItemsPerCol then
+                    Nothing
+
+                else
+                    Just length
+            )
+
+
+isBoardFull : Board -> Bool
+isBoardFull (Board board) =
+    board.columns
+        |> Array.filter (\col -> Array.length col < board.maxItemsPerCol)
+        |> Array.isEmpty
 
 
 const_NUM_TO_CONNECT : Int
@@ -195,18 +199,6 @@ isWinningMove colorBeingPlaced ({ column } as c) ((Board board) as b) =
             checkVertical slotItemWasLastPlacedIn
                 || checkHorizontal slotItemWasLastPlacedIn
                 || checkDiagonals slotItemWasLastPlacedIn
-
-
-isFilled : { column : Int } -> Board -> Bool
-isFilled { column } board =
-    nextAvailableSlot { column = column } board == Nothing
-
-
-isBoardFull : Board -> Bool
-isBoardFull (Board board) =
-    board.columns
-        |> Array.filter (\col -> Array.length col < board.maxItemsPerCol)
-        |> Array.isEmpty
 
 
 view : ({ column : Int } -> msg) -> Board -> Html msg
