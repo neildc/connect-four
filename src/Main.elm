@@ -263,11 +263,28 @@ viewStartScreen players =
         viewPlayerEdit : Int -> Player -> Html Msg
         viewPlayerEdit index player =
             let
+                maybePlayerWithSelectedColor color =
+                    players |> Array.filter (\p -> p.color == color) |> Array.get 0
+
                 viewColorButton color =
                     Html.button
                         (List.concat
-                            [ [ HE.onClick (PlayerEdited { playerIndex = index } { player | color = color })
-                              , HA.style "background-color" (Color.toHexString color)
+                            [ case maybePlayerWithSelectedColor color of
+                                Just p ->
+                                    -- Without this you get an annoying effect of whenever
+                                    -- a new color is selected the "not-allowed" is displayed
+                                    -- straight after
+                                    if p == player then
+                                        []
+
+                                    else
+                                        [ HA.style "cursor" "not-allowed" ]
+
+                                Nothing ->
+                                    [ HE.onClick (PlayerEdited { playerIndex = index } { player | color = color })
+                                    , HA.style "cursor" "pointer"
+                                    ]
+                            , [ HA.style "background-color" (Color.toHexString color)
                               , HA.style "height" "20px"
                               , HA.style "width" "20px"
                               , HA.style "margin-left" "5px"

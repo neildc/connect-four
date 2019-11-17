@@ -273,11 +273,18 @@ view dropItemIntoColumnMsg ((Board board) as b) =
         List.indexedMap
             (\colIndex col ->
                 Html.div
-                    [ HA.class "column"
-                    , HE.onClick (dropItemIntoColumnMsg { column = colIndex })
-                    ]
-                <|
-                    List.map
+                    (List.concat
+                        [ [ HA.class "column" ]
+                        , if Array.length col == board.maxItemsPerCol then
+                            [ HA.style "cursor" "not-allowed" ]
+
+                          else
+                            [ HE.onClick (dropItemIntoColumnMsg { column = colIndex })
+                            , HA.style "cursor" "pointer"
+                            ]
+                        ]
+                    )
+                    (List.map
                         (\rowIndex ->
                             viewBox
                                 (Array.get rowIndex col)
@@ -291,5 +298,6 @@ view dropItemIntoColumnMsg ((Board board) as b) =
                                 }
                         )
                         (List.range 0 (board.maxItemsPerCol - 1) |> List.reverse)
+                    )
             )
             (board.columns |> Array.toList)
