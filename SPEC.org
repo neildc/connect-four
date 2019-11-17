@@ -39,11 +39,14 @@ Connect Four is a
      CLOSED: [2019-11-17 Sun 22:53]
 
 ** On each player turn,
-*** TODO a timer should keep track of how long it took that player to make all his moves.
+*** DONE a timer should keep track of how long it took that player to make all his moves.
+    CLOSED: [2019-11-18 Mon 00:33]
 *** At the beginning of each turn,
 **** timer for the currently active player
-***** TODO should start counting time and
-***** TODO stop only when the player places a token into a column.
+***** DONE should start counting time and
+      CLOSED: [2019-11-18 Mon 00:33]
+***** DONE stop only when the player places a token into a column.
+      CLOSED: [2019-11-18 Mon 00:33]
 **** DONE Who is the active player should be clearly indicated in the UI.
      CLOSED: [2019-11-17 Sun 22:53]
 

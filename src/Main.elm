@@ -6,6 +6,7 @@ import Browser
 import Html exposing (Html)
 import Html.Attributes as HA
 import Html.Events as HE
+import Time
 import Types.Color as Color exposing (Color)
 import Types.Player as Player exposing (Player)
 
@@ -80,6 +81,7 @@ type Msg
     | RestartGame
     | PlayerMadeAMove { activePlayer : Player } { column : Int }
     | ReturnToStartScreen
+    | TickEverySecond
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -146,6 +148,26 @@ update msg model =
             , Cmd.none
             )
 
+        TickEverySecond ->
+            let
+                maybeActivePlayer =
+                    getActivePlayer model
+            in
+            ( case maybeActivePlayer of
+                Nothing ->
+                    model
+
+                Just activePlayer ->
+                    { model
+                        | players =
+                            Array.set
+                                model.activePlayerIndex
+                                { activePlayer | moveTimerSeconds = activePlayer.moveTimerSeconds + 1 }
+                                model.players
+                    }
+            , Cmd.none
+            )
+
 
 
 ---- VIEW ----
@@ -174,7 +196,11 @@ viewGameScreen model =
                 [ HA.style "color" "white"
                 , HA.style "background-color" <| Color.toHexString activePlayer.color
                 ]
-                [ Html.text <| "Active Player: " ++ activePlayer.name
+                [ Html.text <|
+                    String.join "\t\t"
+                        [ "Active Player: " ++ activePlayer.name
+                        , "Time spent:" ++ String.fromInt activePlayer.moveTimerSeconds ++ " seconds"
+                        ]
                 ]
     in
     Html.div [] <|
@@ -268,6 +294,16 @@ viewRoundEndScreen { wasTie } model =
         ]
 
 
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    case model.screen of
+        GameScreen ->
+            Time.every 1000 (always TickEverySecond)
+
+        _ ->
+            Sub.none
+
+
 
 ---- PROGRAM ----
 
@@ -278,5 +314,5 @@ main =
         { view = view
         , init = \_ -> init
         , update = update
-        , subscriptions = always Sub.none
+        , subscriptions = subscriptions
         }
