@@ -11,6 +11,11 @@ import Types.Color as Color exposing (Color)
 import Types.Player as Player exposing (Player)
 
 
+
+---- CONFIG ----
+-- TODO user configurable/load through flags?
+
+
 const_GAME_COLUMNS : Int
 const_GAME_COLUMNS =
     7
@@ -19,6 +24,16 @@ const_GAME_COLUMNS =
 const_GAME_ROWS : Int
 const_GAME_ROWS =
     6
+
+
+defaultPlayers : List ( String, Color )
+defaultPlayers =
+    [ ( "Player 1", Color.Blue )
+    , ( "Player 2", Color.Red )
+
+    -- , ( "Player 3", Color.Yellow )
+    -- , ( "Player 4", Color.Green )
+    ]
 
 
 
@@ -39,6 +54,22 @@ type alias Model =
     }
 
 
+cssGridBox =
+    List.map (\( k, v ) -> HA.style k v)
+        [ ( "display", "grid" )
+        , ( "grid-gap", "30px" )
+        , ( "align-content", "center" )
+        , ( "justify-content", "center" )
+        , ( "width", "50%" )
+        , ( "margin-left", "auto" )
+        , ( "margin-right", "auto" )
+        , ( "margin-top", "100px" )
+        , ( "padding", "40px" )
+        , ( "border", "solid 5px black" )
+        , ( "border-radius", "25px" )
+        ]
+
+
 getActivePlayer : Model -> Maybe Player
 getActivePlayer model =
     Array.get model.activePlayerIndex model.players
@@ -56,16 +87,11 @@ setActivePlayerToNext model =
 
 init : ( Model, Cmd Msg )
 init =
-    let
-        defaultPlayers =
-            List.map (\( name, color ) -> Player.init name color)
-                [ ( "Player 1", Color.Blue )
-                , ( "Player 2", Color.Red )
-                ]
-    in
     ( { screen = StartScreen
       , board = Board.init { columns = const_GAME_COLUMNS, rows = const_GAME_ROWS }
-      , players = Array.fromList defaultPlayers
+      , players =
+            Array.fromList <|
+                List.map (\( name, color ) -> Player.init name color) defaultPlayers
       , activePlayerIndex = 0
       }
     , Cmd.none
@@ -191,16 +217,31 @@ view model =
 viewGameScreen : Model -> Html Msg
 viewGameScreen model =
     let
-        viewActivePlayer activePlayer =
+        playerText player =
+            String.join " / "
+                [ player.name
+                , "Time Spent: " ++ String.fromInt player.moveTimerSeconds ++ " seconds"
+                ]
+
+        viewPlayer { isActivePlayer } player =
             Html.div
                 [ HA.style "color" "white"
-                , HA.style "background-color" <| Color.toHexString activePlayer.color
+                , HA.style "text-shadow" "black 0px 0px 10px"
+                , HA.style "background-color" <| Color.toHexString player.color
+                , HA.style "padding-top" "20px"
+                , HA.style "height" "40px"
+                , if isActivePlayer then
+                    HA.style "border" "black solid 2px"
+
+                  else
+                    HA.style "filter" "brightness(50%)"
                 ]
                 [ Html.text <|
-                    String.join "\t\t"
-                        [ "Active Player: " ++ activePlayer.name
-                        , "Time spent:" ++ String.fromInt activePlayer.moveTimerSeconds ++ " seconds"
-                        ]
+                    if isActivePlayer then
+                        String.concat [ "--->  ", playerText player, "   <----" ]
+
+                    else
+                        playerText player
                 ]
     in
     Html.div [] <|
@@ -209,9 +250,10 @@ viewGameScreen model =
                 [ Html.text "Error: invalid active player" ]
 
             Just activePlayer ->
-                [ Board.view (PlayerMadeAMove { activePlayer = activePlayer }) model.board
-                , viewActivePlayer activePlayer
-                ]
+                Board.view (PlayerMadeAMove { activePlayer = activePlayer }) model.board
+                    :: (Array.toList <|
+                            Array.indexedMap (\i p -> viewPlayer { isActivePlayer = i == model.activePlayerIndex } p) model.players
+                       )
 
 
 viewStartScreen : Array Player -> Html Msg
@@ -225,27 +267,34 @@ viewStartScreen players =
                         (List.concat
                             [ [ HE.onClick (PlayerEdited { playerIndex = index } { player | color = color })
                               , HA.style "background-color" (Color.toHexString color)
-                              , HA.style "height" "15px"
+                              , HA.style "height" "20px"
+                              , HA.style "width" "20px"
+                              , HA.style "margin-left" "5px"
                               ]
                             , if color == player.color then
-                                [ HA.style "border" "black solid 2px" ]
+                                [ HA.style "border" "black inset 3px" ]
 
                               else
-                                []
+                                [ HA.style "border" "white solid 3px" ]
                             ]
                         )
                         []
             in
             Html.div [] <|
                 List.concat
-                    [ [ Html.input [ HA.value player.name, HE.onInput (\s -> PlayerEdited { playerIndex = index } { player | name = s }) ] []
+                    [ [ Html.input
+                            [ HA.value player.name
+                            , HE.onInput (\s -> PlayerEdited { playerIndex = index } { player | name = s })
+                            , HA.style "margin-right" "20px"
+                            ]
+                            []
                       ]
-                    , List.map viewColorButton Color.all
+                    , List.map viewColorButton Color.playerColors
                     ]
     in
-    Html.div [] <|
+    Html.div cssGridBox <|
         List.concat
-            [ [ Html.text "Players" ]
+            [ [ Html.h1 [] [ Html.text "Players" ] ]
             , Array.toList <| Array.indexedMap viewPlayerEdit players
             , [ Html.button [ HE.onClick RestartGame ] [ Html.text "Start Game" ] ]
             ]
@@ -259,8 +308,8 @@ viewRoundEndScreen { wasTie } model =
 
         viewScores player =
             Html.div []
-                [ Html.text player.name
-                , Html.br [] []
+                [ Html.h3 [ HA.style "border-left" <| "solid 10px " ++ Color.toHexString player.color ]
+                    [ Html.text player.name ]
                 , Html.text <| String.fromInt player.gamesWon
                 ]
 
@@ -279,13 +328,16 @@ viewRoundEndScreen { wasTie } model =
                 , ( "justify-content", "center" )
                 ]
     in
-    Html.div [ HA.style "display" "grid", HA.style "grid-gap" "30px" ] <|
-        [ Html.text <|
-            if wasTie then
-                "Draw: No winner"
+    Html.div
+        cssGridBox
+        [ Html.h1 []
+            [ Html.text <|
+                if wasTie then
+                    "Draw: No winner"
 
-            else
-                (maybeWinner |> Maybe.map .name |> Maybe.withDefault "") ++ " won"
+                else
+                    (maybeWinner |> Maybe.map .name |> Maybe.withDefault "") ++ " won"
+            ]
         , Html.div cssGridColumns <|
             Array.toList <|
                 Array.map viewScores model.players

@@ -216,7 +216,6 @@ view dropItemIntoColumnMsg ((Board board) as b) =
             100
 
         marginPx =
-            -- boxWidthPx // 5
             20
 
         gridCss =
@@ -236,7 +235,7 @@ view dropItemIntoColumnMsg ((Board board) as b) =
                 , ( "justify-content", "center" )
                 , ( "padding-top", String.fromInt marginPx ++ "px" )
                 , ( "padding-bottom", String.fromInt marginPx ++ "px" )
-                , ( "background-color", "lightgray" )
+                , ( "background-color", Color.toHexString Color.Black )
                 ]
 
         boxCss =
@@ -263,7 +262,9 @@ view dropItemIntoColumnMsg ((Board board) as b) =
                             []
 
                         Just color ->
-                            [ HA.style "background-color" <| Color.toHexString color ]
+                            [ HA.style "background-color" <| Color.toHexString color
+                            , HA.style "box-shadow" "1px 2px 4px rgba(0, 0, 0, .5)"
+                            ]
                     ]
                 )
                 []

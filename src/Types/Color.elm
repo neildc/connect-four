@@ -1,4 +1,4 @@
-module Types.Color exposing (Color(..), all, toHexString)
+module Types.Color exposing (Color(..), playerColors, toHexString)
 
 
 type Color
@@ -6,24 +6,37 @@ type Color
     | Red
     | Green
     | Yellow
+    | Orange
+    | LightGray
+    | Black
 
 
-all : List Color
-all =
-    [ Blue, Red, Green, Yellow ]
+playerColors : List Color
+playerColors =
+    [ Blue, Red, Green, Yellow, Orange ]
 
 
 toHexString : Color -> String
 toHexString color =
+    -- https://coolors.co/b3001b-262626-255c99-fcfcfc-d2f898
     case color of
         Blue ->
-            "#0000ff"
+            "#255C99"
 
         Red ->
-            "#ff0000"
+            "#B3001B"
 
         Green ->
-            "#00ff00"
+            "#D2F898"
 
         Yellow ->
-            "yellow"
+            "#F7F052"
+
+        Orange ->
+            "#F28123"
+
+        LightGray ->
+            "#FCFCFC"
+
+        Black ->
+            "#262626"
