@@ -20,8 +20,10 @@ Connect Four is a
 * What do I need to do?
 ** Players take turns
 *** in each turn
-**** TODO one player has the right to drop a token into any column which is not filled
-*** TODO The game is finished as soon as one of the players satisfies the victory conditions.
+**** DONE one player has the right to drop a token into any column which is not filled
+     CLOSED: [2019-11-17 Sun 22:54]
+*** DONE The game is finished as soon as one of the players satisfies the victory conditions.
+    CLOSED: [2019-11-17 Sun 22:53]
 **** At that point the game
 ***** TODO can be restarted,
 ***** TODO the players can return to the starting screen.
@@ -29,8 +31,10 @@ Connect Four is a
 * Some additional details regarding the task
 ** On the starting screen
 *** [EITHER] the players should be able to
-**** TODO enter their names and select the colour of their tokens
-**** TODO continue with the default names and colours (e.g. Player 1 with blue colour, and Player 2 with red colour, or per your own choice).
+**** DONE enter their names and select the colour of their tokens
+     CLOSED: [2019-11-17 Sun 22:53]
+**** DONE continue with the default names and colours (e.g. Player 1 with blue colour, and Player 2 with red colour, or per your own choice).
+     CLOSED: [2019-11-17 Sun 22:53]
 
 ** On each player turn,
 *** TODO a timer should keep track of how long it took that player to make all his moves.
@@ -38,7 +42,8 @@ Connect Four is a
 **** timer for the currently active player
 ***** TODO should start counting time and
 ***** TODO stop only when the player places a token into a column.
-**** TODO Who is the active player should be clearly indicated in the UI.
+**** DONE Who is the active player should be clearly indicated in the UI.
+     CLOSED: [2019-11-17 Sun 22:53]
 
 ** The number of wins for each player should also be tracked.
 *** If the game is restarted,
