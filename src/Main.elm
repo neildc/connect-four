@@ -54,9 +54,9 @@ type alias Model =
     }
 
 
-getActivePlayer : Model -> Maybe Player
-getActivePlayer model =
-    Array.get model.activePlayerIndex model.players
+getActivePlayer : { a | activePlayerIndex : Int, players : Array Player } -> Maybe Player
+getActivePlayer { activePlayerIndex, players } =
+    Array.get activePlayerIndex players
 
 
 setActivePlayerToNext : Model -> Model
@@ -97,6 +97,7 @@ type Msg
     | PlayerMadeAMove { activePlayer : Player } { columnIndex : Int }
     | ReturnToStartScreen
     | TickEverySecond
+    | NoOp
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -127,7 +128,7 @@ update msg model =
                             { model | board = newBoard }
                                 |> setActivePlayerToNext
 
-                Board.WinningMove ->
+                Board.WinningMove newBoard ->
                     let
                         maybeWinner =
                             getActivePlayer model
@@ -136,6 +137,7 @@ update msg model =
                         Just winner ->
                             { model
                                 | screen = RoundEndScreen { wasTie = False }
+                                , board = newBoard
                                 , players =
                                     Array.set
                                         model.activePlayerIndex
@@ -144,11 +146,14 @@ update msg model =
                             }
 
                         Nothing ->
-                            Debug.log "This should never happen..." <|
-                                { model | screen = RoundEndScreen { wasTie = True } }
+                            -- Debug.log "This should never happen..." <|
+                            Tuple.first <| init
 
-                Board.BoardIsFull ->
-                    { model | screen = RoundEndScreen { wasTie = True } }
+                Board.BoardIsFull newBoard ->
+                    { model
+                        | screen = RoundEndScreen { wasTie = True }
+                        , board = newBoard
+                    }
             , Cmd.none
             )
 
@@ -180,6 +185,9 @@ update msg model =
             , Cmd.none
             )
 
+        NoOp ->
+            ( model, Cmd.none )
+
 
 
 ---- VIEW ----
@@ -205,16 +213,23 @@ cssGridBox =
 
 view : Model -> Html Msg
 view model =
-    case model.screen of
-        StartScreen ->
-            viewStartScreen model.players
+    Html.div [] <|
+        case model.screen of
+            StartScreen ->
+                [ viewStartScreen model.players ]
 
-        GameScreen ->
-            viewGameScreen model
+            GameScreen ->
+                case getActivePlayer model of
+                    Nothing ->
+                        [ Html.text "Error : Invalid active player" ]
 
-        RoundEndScreen wasTie ->
-            Html.div []
-                [ viewGameScreen model
+                    Just activePlayer ->
+                        [ Board.view (PlayerMadeAMove { activePlayer = activePlayer }) { boardZoom = 1.0 } model.board
+                        , viewPlayerStatus { activePlayerIndex = model.activePlayerIndex } model.players
+                        ]
+
+            RoundEndScreen wasTie ->
+                [ Board.view (always NoOp) { boardZoom = 0.5 } model.board
                 , viewRoundEndScreen wasTie model
                 ]
 
@@ -280,8 +295,8 @@ viewStartScreen players =
             ]
 
 
-viewGameScreen : Model -> Html Msg
-viewGameScreen model =
+viewPlayerStatus : { activePlayerIndex : Int } -> Array Player -> Html Msg
+viewPlayerStatus { activePlayerIndex } players =
     let
         playerText player =
             String.join " / "
@@ -311,15 +326,17 @@ viewGameScreen model =
                 ]
     in
     Html.div [] <|
-        case getActivePlayer model of
+        case getActivePlayer { activePlayerIndex = activePlayerIndex, players = players } of
             Nothing ->
                 [ Html.text "Error: invalid active player" ]
 
             Just activePlayer ->
-                Board.view (PlayerMadeAMove { activePlayer = activePlayer }) model.board
-                    :: (Array.toList <|
-                            Array.indexedMap (\i p -> viewPlayer { isActivePlayer = i == model.activePlayerIndex } p) model.players
-                       )
+                Array.toList <|
+                    Array.indexedMap
+                        (\i p ->
+                            viewPlayer { isActivePlayer = i == activePlayerIndex } p
+                        )
+                        players
 
 
 viewRoundEndScreen : { wasTie : Bool } -> Model -> Html Msg

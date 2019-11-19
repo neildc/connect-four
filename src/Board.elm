@@ -25,8 +25,8 @@ type PlaceResult
     = -- TODO: think of a better name
       Placed (Result String Board)
       -- | ColumnAlreadyFull -- On click is removed when full
-    | WinningMove
-    | BoardIsFull
+    | WinningMove Board
+    | BoardIsFull Board
 
 
 init : { columns : Int, rows : Int } -> Board
@@ -62,10 +62,10 @@ place colorBeingPlaced ({ columnIndex } as ci) ((Board board) as oldBoard) =
     case updatedBoardResult of
         Result.Ok updatedBoard ->
             if isWinningMove colorBeingPlaced ci updatedBoard then
-                WinningMove
+                WinningMove updatedBoard
 
             else if isBoardFull updatedBoard then
-                BoardIsFull
+                BoardIsFull updatedBoard
 
             else
                 Placed <| Result.Ok updatedBoard
@@ -204,14 +204,14 @@ isWinningMove colorBeingPlaced ({ columnIndex } as ci) ((Board board) as b) =
                 || checkDiagonals rowIndexItemWasLastPlacedIn
 
 
-view : ({ columnIndex : Int } -> msg) -> Board -> Html msg
-view dropItemIntoColumnMsg ((Board board) as b) =
+view : ({ columnIndex : Int } -> msg) -> { boardZoom : Float } -> Board -> Html msg
+view dropItemIntoColumnMsg { boardZoom } ((Board board) as b) =
     let
         boxWidthVw =
-            "6vw"
+            String.fromFloat (6 * boardZoom) ++ "vw"
 
         marginVw =
-            "1vw"
+            String.fromFloat (1 * boardZoom) ++ "vw"
 
         gridCss =
             List.map (\( k, v ) -> HA.style k v)
