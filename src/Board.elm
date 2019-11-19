@@ -37,12 +37,12 @@ init { columns, rows } =
         }
 
 
-place : Color -> { column : Int } -> Board -> PlaceResult
-place colorBeingPlaced column ((Board board) as oldBoard) =
+place : Color -> { columnIndex : Int } -> Board -> PlaceResult
+place colorBeingPlaced ({ columnIndex } as ci) ((Board board) as oldBoard) =
     let
         updatedBoardResult =
             board.columns
-                |> Array.get column.column
+                |> Array.get columnIndex
                 |> (\c ->
                         case c of
                             Nothing ->
@@ -51,7 +51,7 @@ place colorBeingPlaced column ((Board board) as oldBoard) =
                             Just col ->
                                 { board
                                     | columns =
-                                        Array.set column.column
+                                        Array.set columnIndex
                                             (Array.push colorBeingPlaced col)
                                             board.columns
                                 }
@@ -61,7 +61,7 @@ place colorBeingPlaced column ((Board board) as oldBoard) =
     in
     case updatedBoardResult of
         Result.Ok updatedBoard ->
-            if isWinningMove colorBeingPlaced column updatedBoard then
+            if isWinningMove colorBeingPlaced ci updatedBoard then
                 WinningMove
 
             else if isBoardFull updatedBoard then
@@ -84,10 +84,10 @@ getNumColumns (Board board) =
     board.columns |> Array.length
 
 
-nextAvailableSlot : { column : Int } -> Board -> Maybe Int
-nextAvailableSlot { column } (Board board) =
+nextAvailableRow : { columnIndex : Int } -> Board -> Maybe Int
+nextAvailableRow { columnIndex } (Board board) =
     board.columns
-        |> Array.get column
+        |> Array.get columnIndex
         |> Maybe.map Array.length
         |> Maybe.andThen
             (\length ->
@@ -116,8 +116,8 @@ type DiagonalSlope
     | DiagonalSlopeRight
 
 
-isWinningMove : Color -> { column : Int } -> Board -> Bool
-isWinningMove colorBeingPlaced ({ column } as c) ((Board board) as b) =
+isWinningMove : Color -> { columnIndex : Int } -> Board -> Bool
+isWinningMove colorBeingPlaced ({ columnIndex } as ci) ((Board board) as b) =
     let
         target =
             List.repeat const_NUM_TO_CONNECT (Just colorBeingPlaced)
@@ -128,13 +128,13 @@ isWinningMove colorBeingPlaced ({ column } as c) ((Board board) as b) =
 
         -- Check from the where we are dropping one in and the
         -- four below it.
-        checkVertical slot =
-            case Array.get column board.columns of
+        checkVertical row =
+            case Array.get columnIndex board.columns of
                 Just col ->
                     let
                         itemsBelowJustPlaced =
                             List.map
-                                (\i -> Array.get (slot - i) col)
+                                (\i -> Array.get (row - i) col)
                                 (List.range 0 (const_NUM_TO_CONNECT - 1))
                     in
                     target == itemsBelowJustPlaced
@@ -142,19 +142,25 @@ isWinningMove colorBeingPlaced ({ column } as c) ((Board board) as b) =
                 Nothing ->
                     False
 
-        checkHorizontal slot =
+        checkHorizontal row =
             let
                 adjacentItems =
                     List.map
-                        (\i -> Array.get i board.columns |> Maybe.andThen (Array.get slot))
+                        (\i -> Array.get i board.columns |> Maybe.andThen (Array.get row))
                         (List.range
-                            (Basics.max 0 <| column - const_NUM_TO_CONNECT - 1)
-                            (Basics.min (getNumColumns b - 1) <| column + const_NUM_TO_CONNECT - 1)
+                            (Basics.max
+                                0
+                                (columnIndex - const_NUM_TO_CONNECT - 1)
+                            )
+                            (Basics.min
+                                (getNumColumns b - 1)
+                                (columnIndex + const_NUM_TO_CONNECT - 1)
+                            )
                         )
             in
             containsTarget adjacentItems
 
-        checkDiagonals slot =
+        checkDiagonals row =
             let
                 adjacentItemsSlope slopeDirection =
                     let
@@ -168,8 +174,8 @@ isWinningMove colorBeingPlaced ({ column } as c) ((Board board) as b) =
                     in
                     List.map
                         (\i ->
-                            Array.get (column + i) board.columns
-                                |> Maybe.andThen (Array.get (slopeDirectionAdjustment slot i))
+                            Array.get (columnIndex + i) board.columns
+                                |> Maybe.andThen (Array.get (slopeDirectionAdjustment row i))
                         )
                         (List.range
                             (negate const_NUM_TO_CONNECT - 1)
@@ -184,25 +190,25 @@ isWinningMove colorBeingPlaced ({ column } as c) ((Board board) as b) =
             in
             containsTarget adjacentItemsSlopeRight || containsTarget adjacentItemsSlopeLeft
     in
-    case nextAvailableSlot c b of
+    case nextAvailableRow ci b of
         Nothing ->
             False
 
-        Just nextSlot ->
+        Just nextRow ->
             let
-                slotItemWasLastPlacedIn =
-                    nextSlot - 1
+                rowItemWasLastPlacedIn =
+                    nextRow - 1
             in
-            checkVertical slotItemWasLastPlacedIn
-                || checkHorizontal slotItemWasLastPlacedIn
-                || checkDiagonals slotItemWasLastPlacedIn
+            checkVertical rowItemWasLastPlacedIn
+                || checkHorizontal rowItemWasLastPlacedIn
+                || checkDiagonals rowItemWasLastPlacedIn
 
 
-view : ({ column : Int } -> msg) -> Board -> Html msg
+view : ({ columnIndex : Int } -> msg) -> Board -> Html msg
 view dropItemIntoColumnMsg ((Board board) as b) =
     let
         boxWidthVw =
-            "7vw"
+            "6vw"
 
         marginVw =
             "1vw"
@@ -257,36 +263,36 @@ view dropItemIntoColumnMsg ((Board board) as b) =
                     ]
                 )
                 []
+
+        viewColumn columnIndex columnArr =
+            Html.div
+                (List.concat
+                    [ if Array.length columnArr == board.maxItemsPerCol then
+                        [ HA.style "cursor" "not-allowed" ]
+
+                      else
+                        [ HE.onClick (dropItemIntoColumnMsg columnIndex)
+                        , HA.style "cursor" "pointer"
+                        ]
+                    ]
+                )
+                (List.map
+                    (\rowIndex ->
+                        viewBox
+                            (Array.get rowIndex columnArr)
+                            { isPreview =
+                                case nextAvailableRow columnIndex b of
+                                    Just availiableRowIndex ->
+                                        rowIndex == availiableRowIndex
+
+                                    Nothing ->
+                                        False
+                            }
+                    )
+                    (List.range 0 (board.maxItemsPerCol - 1) |> List.reverse)
+                )
     in
     Html.div gridCss <|
         List.indexedMap
-            (\colIndex col ->
-                Html.div
-                    (List.concat
-                        [ [ HA.class "column" ]
-                        , if Array.length col == board.maxItemsPerCol then
-                            [ HA.style "cursor" "not-allowed" ]
-
-                          else
-                            [ HE.onClick (dropItemIntoColumnMsg { column = colIndex })
-                            , HA.style "cursor" "pointer"
-                            ]
-                        ]
-                    )
-                    (List.map
-                        (\rowIndex ->
-                            viewBox
-                                (Array.get rowIndex col)
-                                { isPreview =
-                                    case nextAvailableSlot { column = colIndex } b of
-                                        Just availiableSlotIndex ->
-                                            rowIndex == availiableSlotIndex
-
-                                        Nothing ->
-                                            False
-                                }
-                        )
-                        (List.range 0 (board.maxItemsPerCol - 1) |> List.reverse)
-                    )
-            )
+            (\i columnArr -> viewColumn { columnIndex = i } columnArr)
             (board.columns |> Array.toList)

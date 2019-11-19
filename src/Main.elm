@@ -111,7 +111,7 @@ init =
 type Msg
     = PlayerEdited { playerIndex : Int } Player
     | RestartGame
-    | PlayerMadeAMove { activePlayer : Player } { column : Int }
+    | PlayerMadeAMove { activePlayer : Player } { columnIndex : Int }
     | ReturnToStartScreen
     | TickEverySecond
 
@@ -133,8 +133,8 @@ update msg model =
             , Cmd.none
             )
 
-        PlayerMadeAMove { activePlayer } column ->
-            ( case Board.place activePlayer.color column model.board of
+        PlayerMadeAMove { activePlayer } columnIndex ->
+            ( case Board.place activePlayer.color columnIndex model.board of
                 Board.Placed result ->
                     case result of
                         Result.Err errStr ->
