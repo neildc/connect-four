@@ -54,23 +54,6 @@ type alias Model =
     }
 
 
-cssGridBox =
-    List.map (\( k, v ) -> HA.style k v)
-        [ ( "display", "grid" )
-        , ( "grid-gap", "30px" )
-        , ( "align-content", "center" )
-        , ( "justify-content", "center" )
-        , ( "width", "50%" )
-        , ( "margin-left", "auto" )
-        , ( "margin-right", "auto" )
-        , ( "margin-top", "100px" )
-        , ( "padding", "40px" )
-        , ( "border", "solid 5px black" )
-        , ( "border-radius", "25px" )
-        , ( "background-color", "white" )
-        ]
-
-
 getActivePlayer : Model -> Maybe Player
 getActivePlayer model =
     Array.get model.activePlayerIndex model.players
@@ -202,61 +185,38 @@ update msg model =
 ---- VIEW ----
 
 
-view : Model -> Html Msg
-view model =
-    Html.div []
-        [ case model.screen of
-            StartScreen ->
-                viewStartScreen model.players
-
-            GameScreen ->
-                viewGameScreen model
-
-            RoundEndScreen wasTie ->
-                viewRoundEndScreen wasTie model
+cssGridBox : List (Html.Attribute msg)
+cssGridBox =
+    List.map (\( k, v ) -> HA.style k v)
+        [ ( "display", "grid" )
+        , ( "grid-gap", "30px" )
+        , ( "align-content", "center" )
+        , ( "justify-content", "center" )
+        , ( "width", "50%" )
+        , ( "margin-left", "auto" )
+        , ( "margin-right", "auto" )
+        , ( "margin-top", "100px" )
+        , ( "padding", "40px" )
+        , ( "border", "solid 5px black" )
+        , ( "border-radius", "25px" )
+        , ( "background-color", "white" )
         ]
 
 
-viewGameScreen : Model -> Html Msg
-viewGameScreen model =
-    let
-        playerText player =
-            String.join " / "
-                [ player.name
-                , "Time Spent: " ++ String.fromInt player.moveTimerSeconds ++ " seconds"
+view : Model -> Html Msg
+view model =
+    case model.screen of
+        StartScreen ->
+            viewStartScreen model.players
+
+        GameScreen ->
+            viewGameScreen model
+
+        RoundEndScreen wasTie ->
+            Html.div []
+                [ viewGameScreen model
+                , viewRoundEndScreen wasTie model
                 ]
-
-        viewPlayer { isActivePlayer } player =
-            Html.div
-                [ HA.style "color" "white"
-                , HA.style "text-shadow" "black 0px 0px 10px"
-                , HA.style "background-color" <| Color.toHexString player.color
-                , HA.style "padding-top" "20px"
-                , HA.style "height" "40px"
-                , if isActivePlayer then
-                    HA.style "border" "black solid 2px"
-
-                  else
-                    HA.style "filter" "brightness(50%)"
-                ]
-                [ Html.text <|
-                    if isActivePlayer then
-                        String.concat [ "[   ", playerText player, "   ]" ]
-
-                    else
-                        playerText player
-                ]
-    in
-    Html.div [] <|
-        case getActivePlayer model of
-            Nothing ->
-                [ Html.text "Error: invalid active player" ]
-
-            Just activePlayer ->
-                Board.view (PlayerMadeAMove { activePlayer = activePlayer }) model.board
-                    :: (Array.toList <|
-                            Array.indexedMap (\i p -> viewPlayer { isActivePlayer = i == model.activePlayerIndex } p) model.players
-                       )
 
 
 viewStartScreen : Array Player -> Html Msg
@@ -318,6 +278,48 @@ viewStartScreen players =
             , Array.toList <| Array.indexedMap viewPlayerEdit players
             , [ Html.button [ HE.onClick RestartGame ] [ Html.text "Start Game" ] ]
             ]
+
+
+viewGameScreen : Model -> Html Msg
+viewGameScreen model =
+    let
+        playerText player =
+            String.join " / "
+                [ player.name
+                , "Time Spent: " ++ String.fromInt player.moveTimerSeconds ++ " seconds"
+                ]
+
+        viewPlayer { isActivePlayer } player =
+            Html.div
+                [ HA.style "color" "white"
+                , HA.style "text-shadow" "black 0px 0px 10px"
+                , HA.style "background-color" <| Color.toHexString player.color
+                , HA.style "padding-top" "20px"
+                , HA.style "height" "40px"
+                , if isActivePlayer then
+                    HA.style "border" "black solid 2px"
+
+                  else
+                    HA.style "filter" "brightness(50%)"
+                ]
+                [ Html.text <|
+                    if isActivePlayer then
+                        String.concat [ "[   ", playerText player, "   ]" ]
+
+                    else
+                        playerText player
+                ]
+    in
+    Html.div [] <|
+        case getActivePlayer model of
+            Nothing ->
+                [ Html.text "Error: invalid active player" ]
+
+            Just activePlayer ->
+                Board.view (PlayerMadeAMove { activePlayer = activePlayer }) model.board
+                    :: (Array.toList <|
+                            Array.indexedMap (\i p -> viewPlayer { isActivePlayer = i == model.activePlayerIndex } p) model.players
+                       )
 
 
 viewRoundEndScreen : { wasTie : Bool } -> Model -> Html Msg
