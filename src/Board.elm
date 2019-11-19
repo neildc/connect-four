@@ -84,8 +84,8 @@ getNumColumns (Board board) =
     board.columns |> Array.length
 
 
-nextAvailableRow : { columnIndex : Int } -> Board -> Maybe Int
-nextAvailableRow { columnIndex } (Board board) =
+nextAvailableRowIndex : { columnIndex : Int } -> Board -> Maybe Int
+nextAvailableRowIndex { columnIndex } (Board board) =
     board.columns
         |> Array.get columnIndex
         |> Maybe.map Array.length
@@ -128,13 +128,13 @@ isWinningMove colorBeingPlaced ({ columnIndex } as ci) ((Board board) as b) =
 
         -- Check from the where we are dropping one in and the
         -- four below it.
-        checkVertical row =
+        checkVertical rowIndex =
             case Array.get columnIndex board.columns of
                 Just col ->
                     let
                         itemsBelowJustPlaced =
                             List.map
-                                (\i -> Array.get (row - i) col)
+                                (\i -> Array.get (rowIndex - i) col)
                                 (List.range 0 (const_NUM_TO_CONNECT - 1))
                     in
                     target == itemsBelowJustPlaced
@@ -142,11 +142,11 @@ isWinningMove colorBeingPlaced ({ columnIndex } as ci) ((Board board) as b) =
                 Nothing ->
                     False
 
-        checkHorizontal row =
+        checkHorizontal rowIndex =
             let
                 adjacentItems =
                     List.map
-                        (\i -> Array.get i board.columns |> Maybe.andThen (Array.get row))
+                        (\i -> Array.get i board.columns |> Maybe.andThen (Array.get rowIndex))
                         (List.range
                             (Basics.max
                                 0
@@ -160,7 +160,7 @@ isWinningMove colorBeingPlaced ({ columnIndex } as ci) ((Board board) as b) =
             in
             containsTarget adjacentItems
 
-        checkDiagonals row =
+        checkDiagonals rowIndex =
             let
                 adjacentItemsSlope slopeDirection =
                     let
@@ -175,7 +175,7 @@ isWinningMove colorBeingPlaced ({ columnIndex } as ci) ((Board board) as b) =
                     List.map
                         (\i ->
                             Array.get (columnIndex + i) board.columns
-                                |> Maybe.andThen (Array.get (slopeDirectionAdjustment row i))
+                                |> Maybe.andThen (Array.get (slopeDirectionAdjustment rowIndex i))
                         )
                         (List.range
                             (negate const_NUM_TO_CONNECT - 1)
@@ -190,18 +190,18 @@ isWinningMove colorBeingPlaced ({ columnIndex } as ci) ((Board board) as b) =
             in
             containsTarget adjacentItemsSlopeRight || containsTarget adjacentItemsSlopeLeft
     in
-    case nextAvailableRow ci b of
+    case nextAvailableRowIndex ci b of
         Nothing ->
             False
 
-        Just nextRow ->
+        Just nextRowIndex ->
             let
-                rowItemWasLastPlacedIn =
-                    nextRow - 1
+                rowIndexItemWasLastPlacedIn =
+                    nextRowIndex - 1
             in
-            checkVertical rowItemWasLastPlacedIn
-                || checkHorizontal rowItemWasLastPlacedIn
-                || checkDiagonals rowItemWasLastPlacedIn
+            checkVertical rowIndexItemWasLastPlacedIn
+                || checkHorizontal rowIndexItemWasLastPlacedIn
+                || checkDiagonals rowIndexItemWasLastPlacedIn
 
 
 view : ({ columnIndex : Int } -> msg) -> Board -> Html msg
@@ -281,7 +281,7 @@ view dropItemIntoColumnMsg ((Board board) as b) =
                         viewBox
                             (Array.get rowIndex columnArr)
                             { isPreview =
-                                case nextAvailableRow columnIndex b of
+                                case nextAvailableRowIndex columnIndex b of
                                     Just availiableRowIndex ->
                                         rowIndex == availiableRowIndex
 
