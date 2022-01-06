@@ -122,7 +122,8 @@ update msg model =
                 Board.Placed result ->
                     case result of
                         Result.Err errStr ->
-                            Debug.todo "Alert?"
+                            -- Debug.todo "Alert?"
+                            model
 
                         Result.Ok newBoard ->
                             { model | board = newBoard }
